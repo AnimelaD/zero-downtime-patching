@@ -1,0 +1,25 @@
+- name: Safe patching
+  block:
+
+    - name: Simulate failure
+      command: /bin/false
+      when: inventory_hostname == "app1"
+
+    - name: Update packages
+      dnf:
+        name: "*"
+        state: latest
+      register: patch_result
+
+    - name: Reboot if needed
+      reboot:
+      when: patch_result.changed
+
+  rescue:
+
+    - name: Log failure
+      debug:
+        msg: "Failure on {{ inventory_hostname }}"
+
+    - name: Stop stage
+      meta: end_play

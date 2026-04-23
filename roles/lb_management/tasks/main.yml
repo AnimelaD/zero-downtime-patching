@@ -1,0 +1,6 @@
+- name: Remove from LB
+  debug:
+    msg: "Removing {{ inventory_hostname }} from Load Balancer"
+
+- pause:
+    seconds: 5

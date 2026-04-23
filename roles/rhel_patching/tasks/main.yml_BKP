@@ -1,0 +1,31 @@
+- name: Safe patching block
+  block:
+
+    - name: Update packages
+      dnf:
+        name: "*"
+        state: latest
+      register: patch_result
+
+    - name: Reboot if required
+      reboot:
+      when: patch_result.changed
+
+  rescue:
+
+    - name: Log failure
+      lineinfile:
+        path: "/tmp/patch_report.txt"
+        line: "{{ inventory_hostname }} FAILED"
+        create: yes
+
+    - name: Stop stage execution
+      meta: end_play
+
+  always:
+
+    - name: Log success
+      lineinfile:
+        path: "/tmp/patch_report.txt"
+        line: "{{ inventory_hostname }} SUCCESS"
+        create: yes
